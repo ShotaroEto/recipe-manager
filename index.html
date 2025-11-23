@@ -17,6 +17,12 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        
+        /* タブのアクティブ状態スタイル */
+        .tab-active {
+            background-color: #C97D60 !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body>
@@ -26,26 +32,26 @@
         const { useState, useEffect } = React;
 
         // Shadcn/ui風のコンポーネント（簡易版）
-        const Card = ({ children, className = '' }) => (
-            <div className={`rounded-lg border bg-white shadow-sm ${className}`}>
+        const Card = ({ children, className = '', style }) => (
+            <div className={`rounded-lg border shadow-sm ${className}`} style={style}>
                 {children}
             </div>
         );
 
-        const CardHeader = ({ children }) => (
-            <div className="p-6 pb-4">
+        const CardHeader = ({ children, className = '' }) => (
+            <div className={`p-6 pb-4 ${className}`}>
                 {children}
             </div>
         );
 
-        const CardTitle = ({ children }) => (
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">
+        const CardTitle = ({ children, className = '', style }) => (
+            <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className}`} style={style}>
                 {children}
             </h3>
         );
 
-        const CardDescription = ({ children }) => (
-            <p className="text-sm text-gray-500 mt-1.5">
+        const CardDescription = ({ children, className = '', style }) => (
+            <p className={`text-sm mt-1.5 ${className}`} style={style}>
                 {children}
             </p>
         );
@@ -56,29 +62,30 @@
             </div>
         );
 
-        const Button = ({ children, onClick, disabled, variant = 'default', size = 'default', className = '' }) => {
+        const Button = ({ children, onClick, disabled, variant = 'default', size = 'default', className = '', style, onMouseEnter, onMouseLeave, onMouseDown, onMouseUp, type = 'button' }) => {
             const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50';
-            const variants = {
-                default: 'bg-blue-600 text-white hover:bg-blue-700',
-                outline: 'border border-gray-300 bg-white hover:bg-gray-50',
-                destructive: 'bg-red-600 text-white hover:bg-red-700'
-            };
             const sizes = {
                 default: 'h-10 px-4 py-2',
                 sm: 'h-8 px-3 text-sm'
             };
             return (
                 <button 
+                    type={type}
                     onClick={onClick}
                     disabled={disabled}
-                    className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+                    className={`${baseClasses} ${sizes[size]} ${className}`}
+                    style={style}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onMouseDown={onMouseDown}
+                    onMouseUp={onMouseUp}
                 >
                     {children}
                 </button>
             );
         };
 
-        const Input = ({ id, type = 'text', value, onChange, placeholder, className = '', min, max }) => (
+        const Input = ({ id, type = 'text', value, onChange, placeholder, className = '', style, min, max }) => (
             <input
                 id={id}
                 type={type}
@@ -87,26 +94,27 @@
                 placeholder={placeholder}
                 min={min}
                 max={max}
-                className={`flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+                className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 ${className}`}
+                style={style}
             />
         );
 
-        const Label = ({ htmlFor, children }) => (
-            <label htmlFor={htmlFor} className="text-sm font-medium leading-none">
+        const Label = ({ htmlFor, children, className = '', style }) => (
+            <label htmlFor={htmlFor} className={`text-sm font-medium leading-none ${className}`} style={style}>
                 {children}
             </label>
         );
 
-        const Badge = ({ children, className = '' }) => (
-            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${className}`}>
+        const Badge = ({ children, className = '', style }) => (
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${className}`} style={style}>
                 {children}
             </span>
         );
 
-        const Tabs = ({ children, defaultValue }) => {
+        const Tabs = ({ children, defaultValue, className }) => {
             const [activeTab, setActiveTab] = useState(defaultValue);
             return (
-                <div>
+                <div className={className}>
                     {React.Children.map(children, child =>
                         React.cloneElement(child, { activeTab, setActiveTab })
                     )}
@@ -114,22 +122,19 @@
             );
         };
 
-        const TabsList = ({ children, activeTab, setActiveTab, className = '' }) => (
-            <div className={`inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 ${className}`}>
+        const TabsList = ({ children, activeTab, setActiveTab, className = '', style }) => (
+            <div className={className} style={style}>
                 {React.Children.map(children, child =>
                     React.cloneElement(child, { activeTab, setActiveTab })
                 )}
             </div>
         );
 
-        const TabsTrigger = ({ value, children, activeTab, setActiveTab }) => (
+        const TabsTrigger = ({ value, children, activeTab, setActiveTab, className = '', style }) => (
             <button
                 onClick={() => setActiveTab(value)}
-                className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all ${
-                    activeTab === value
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${activeTab === value ? 'tab-active' : ''} ${className}`}
+                style={activeTab === value ? { backgroundColor: '#C97D60', color: 'white' } : style}
             >
                 {children}
             </button>
@@ -139,45 +144,45 @@
             activeTab === value ? <div className="mt-2">{children}</div> : null
         );
 
-        // アイコンコンポーネント（簡易版）
-        const ChefHat = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        // アイコンコンポーネント
+        const ChefHat = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
         );
 
-        const Flame = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const Flame = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
             </svg>
         );
 
-        const Calendar = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const Calendar = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
         );
 
-        const Plus = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const Plus = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
         );
 
-        const Trash2 = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const Trash2 = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
         );
 
-        const RefreshCw = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const RefreshCw = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
         );
 
-        const Check = ({ className }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        const Check = ({ className, style }) => (
+            <svg className={className} style={style} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
         );
@@ -188,15 +193,23 @@
             const [newRecipe, setNewRecipe] = useState({
                 name: '',
                 type: '炊飯器',
-                ingredients: ''
+                ingredients: ['']
             });
+            const [searchIngredient, setSearchIngredient] = useState('');
             const [suggestion, setSuggestion] = useState({
                 riceCooker: '1',
                 stove: '1'
             });
             const [suggestedRecipes, setSuggestedRecipes] = useState([]);
+            const [sortedRecipesByType, setSortedRecipesByType] = useState({
+                riceCooker: [],
+                stove: []
+            });
+            const [currentIndices, setCurrentIndices] = useState({
+                riceCooker: [],
+                stove: []
+            });
 
-            // LocalStorageからデータを読み込み
             useEffect(() => {
                 const saved = localStorage.getItem('mealPrepRecipes');
                 if (saved) {
@@ -204,36 +217,47 @@
                 }
             }, []);
 
-            // データをLocalStorageに保存
             useEffect(() => {
                 if (recipes.length > 0 || localStorage.getItem('mealPrepRecipes')) {
                     localStorage.setItem('mealPrepRecipes', JSON.stringify(recipes));
                 }
             }, [recipes]);
 
-            // 料理を追加
+            const updateIngredient = (index, value) => {
+                const newIngredients = [...newRecipe.ingredients];
+                newIngredients[index] = value;
+                setNewRecipe({...newRecipe, ingredients: newIngredients});
+            };
+
+            const addIngredientField = () => {
+                setNewRecipe({...newRecipe, ingredients: [...newRecipe.ingredients, '']});
+            };
+
+            const removeIngredientField = (index) => {
+                if (newRecipe.ingredients.length > 1) {
+                    const newIngredients = newRecipe.ingredients.filter((_, i) => i !== index);
+                    setNewRecipe({...newRecipe, ingredients: newIngredients});
+                }
+            };
+
             const addRecipe = () => {
                 if (!newRecipe.name.trim()) return;
-
                 const recipe = {
                     id: Date.now(),
                     name: newRecipe.name,
                     type: newRecipe.type,
-                    ingredients: newRecipe.ingredients.split(',').map(i => i.trim()).filter(i => i),
+                    ingredients: newRecipe.ingredients.filter(i => i.trim() !== ''),
                     lastCooked: null,
                     cookedCount: 0
                 };
-
                 setRecipes([...recipes, recipe]);
-                setNewRecipe({ name: '', type: '炊飯器', ingredients: '' });
+                setNewRecipe({ name: '', type: '炊飯器', ingredients: [''] });
             };
 
-            // 料理を削除
             const deleteRecipe = (id) => {
                 setRecipes(recipes.filter(r => r.id !== id));
             };
 
-            // 「今日作った」を記録
             const markAsCooked = (id) => {
                 setRecipes(recipes.map(r => 
                     r.id === id 
@@ -242,83 +266,116 @@
                 ));
             };
 
-            // 献立を提案
             const generateSuggestions = () => {
                 const riceCookerRecipes = recipes.filter(r => r.type === '炊飯器');
                 const stoveRecipes = recipes.filter(r => r.type === 'コンロ');
-
-                // 最後に作った日が古い順にソート（作ったことがないものを優先）
                 const sortByLastCooked = (a, b) => {
                     if (!a.lastCooked && !b.lastCooked) return 0;
                     if (!a.lastCooked) return -1;
                     if (!b.lastCooked) return 1;
                     return new Date(a.lastCooked) - new Date(b.lastCooked);
                 };
-
                 const sortedRiceCooker = [...riceCookerRecipes].sort(sortByLastCooked);
                 const sortedStove = [...stoveRecipes].sort(sortByLastCooked);
-
-                // 文字列を数値に変換（空文字列は0として扱う）
+                setSortedRecipesByType({ riceCooker: sortedRiceCooker, stove: sortedStove });
                 const riceCookerCount = parseInt(suggestion.riceCooker) || 0;
                 const stoveCount = parseInt(suggestion.stove) || 0;
-
+                setCurrentIndices({
+                    riceCooker: Array(riceCookerCount).fill(0).map((_, i) => i),
+                    stove: Array(stoveCount).fill(0).map((_, i) => i)
+                });
                 const suggested = [
-                    ...sortedRiceCooker.slice(0, riceCookerCount),
-                    ...sortedStove.slice(0, stoveCount)
+                    ...sortedRiceCooker.slice(0, riceCookerCount).map((recipe, idx) => ({...recipe, suggestionIndex: idx, suggestionType: 'riceCooker'})),
+                    ...sortedStove.slice(0, stoveCount).map((recipe, idx) => ({...recipe, suggestionIndex: idx, suggestionType: 'stove'}))
                 ];
-
                 setSuggestedRecipes(suggested);
             };
 
-            // 日付を表示用にフォーマット
+            const showNextRecipe = (suggestionType, suggestionIndex) => {
+                const newIndices = {...currentIndices};
+                const maxIndex = sortedRecipesByType[suggestionType].length;
+                newIndices[suggestionType][suggestionIndex] = (newIndices[suggestionType][suggestionIndex] + 1) % maxIndex;
+                setCurrentIndices(newIndices);
+                const newSuggested = [
+                    ...currentIndices.riceCooker.map((idx, i) => {
+                        const actualIdx = suggestionType === 'riceCooker' && i === suggestionIndex ? newIndices.riceCooker[i] : idx;
+                        const recipe = sortedRecipesByType.riceCooker[actualIdx];
+                        return recipe ? {...recipe, suggestionIndex: i, suggestionType: 'riceCooker'} : null;
+                    }).filter(r => r !== null),
+                    ...currentIndices.stove.map((idx, i) => {
+                        const actualIdx = suggestionType === 'stove' && i === suggestionIndex ? newIndices.stove[i] : idx;
+                        const recipe = sortedRecipesByType.stove[actualIdx];
+                        return recipe ? {...recipe, suggestionIndex: i, suggestionType: 'stove'} : null;
+                    }).filter(r => r !== null)
+                ];
+                setSuggestedRecipes(newSuggested);
+            };
+
+            const getFilteredRecipes = () => {
+                if (!searchIngredient.trim()) return recipes;
+                return recipes.filter(recipe => 
+                    recipe.ingredients.some(ingredient => 
+                        ingredient.toLowerCase().includes(searchIngredient.toLowerCase())
+                    )
+                );
+            };
+
             const formatDate = (dateString) => {
                 if (!dateString) return '未調理';
                 const date = new Date(dateString);
                 const now = new Date();
                 const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-                
                 if (diffDays === 0) return '今日';
                 if (diffDays === 1) return '昨日';
                 if (diffDays < 7) return `${diffDays}日前`;
                 if (diffDays < 30) return `${Math.floor(diffDays / 7)}週間前`;
-                
                 return `${date.getMonth() + 1}/${date.getDate()}`;
             };
 
-            // タイプ別のアイコンと色
             const getTypeInfo = (type) => {
                 if (type === '炊飯器') {
-                    return { icon: ChefHat, color: 'bg-blue-500', label: '炊飯器' };
+                    return { 
+                        icon: ChefHat, 
+                        style: { backgroundColor: '#7B9369' },
+                        borderColor: '#7B9369',
+                        textColor: '#7B9369',
+                        label: '炊飯器' 
+                    };
                 }
-                return { icon: Flame, color: 'bg-orange-500', label: 'コンロ' };
+                return { 
+                    icon: Flame, 
+                    style: { backgroundColor: '#B28A63' },
+                    borderColor: '#B28A63',
+                    textColor: '#B28A63',
+                    label: 'コンロ' 
+                };
             };
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 p-4">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="text-center mb-6">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">🍱 週末作り置き管理</h1>
-                            <p className="text-gray-600">献立を登録して、サジェストで楽々献立作り</p>
+                <div className="min-h-screen p-4 pb-20" style={{ backgroundColor: '#F9F6F1' }}>
+                    <div className="max-w-xl mx-auto">
+                        <div className="text-center mb-6 pt-2">
+                            <h1 className="text-3xl font-bold mb-2" style={{ color: '#333333' }}>🍱 週末作り置き</h1>
+                            <p className="text-sm" style={{ color: '#666666' }}>献立を登録して、楽々献立作り</p>
                         </div>
 
-                        <Tabs defaultValue="suggest">
-                            <TabsList className="grid w-full grid-cols-3 mb-6">
-                                <TabsTrigger value="suggest">献立提案</TabsTrigger>
-                                <TabsTrigger value="list">料理一覧</TabsTrigger>
-                                <TabsTrigger value="add">新規登録</TabsTrigger>
+                        <Tabs defaultValue="suggest" className="w-full">
+                            <TabsList className="grid w-full grid-cols-3 mb-6 border rounded-xl p-1" style={{ backgroundColor: 'white', borderColor: '#E2D9CF' }}>
+                                <TabsTrigger value="suggest" style={{ color: '#666666' }}>献立提案</TabsTrigger>
+                                <TabsTrigger value="list" style={{ color: '#666666' }}>料理一覧</TabsTrigger>
+                                <TabsTrigger value="add" style={{ color: '#666666' }}>新規登録</TabsTrigger>
                             </TabsList>
 
-                            {/* 献立提案タブ */}
                             <TabsContent value="suggest">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>今週の献立を提案</CardTitle>
-                                        <CardDescription>必要なメニュー数を指定してください</CardDescription>
+                                <Card className="bg-white shadow-sm" style={{ borderColor: '#E2D9CF' }}>
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-xl" style={{ color: '#333333' }}>今週の献立を提案</CardTitle>
+                                        <CardDescription style={{ color: '#666666' }}>必要なメニュー数を指定してください</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <Label htmlFor="riceCooker">炊飯器メニュー</Label>
+                                                <Label htmlFor="riceCooker" className="text-sm font-medium" style={{ color: '#333333' }}>炊飯器メニュー</Label>
                                                 <Input
                                                     id="riceCooker"
                                                     type="number"
@@ -326,11 +383,12 @@
                                                     max="5"
                                                     value={suggestion.riceCooker}
                                                     onChange={(e) => setSuggestion({...suggestion, riceCooker: e.target.value})}
-                                                    className="mt-1"
+                                                    className="mt-1.5 bg-white"
+                                                    style={{ borderColor: '#E2D9CF', color: '#333333' }}
                                                 />
                                             </div>
                                             <div>
-                                                <Label htmlFor="stove">コンロメニュー</Label>
+                                                <Label htmlFor="stove" className="text-sm font-medium" style={{ color: '#333333' }}>コンロメニュー</Label>
                                                 <Input
                                                     id="stove"
                                                     type="number"
@@ -338,14 +396,25 @@
                                                     max="5"
                                                     value={suggestion.stove}
                                                     onChange={(e) => setSuggestion({...suggestion, stove: e.target.value})}
-                                                    className="mt-1"
+                                                    className="mt-1.5 bg-white"
+                                                    style={{ borderColor: '#E2D9CF', color: '#333333' }}
                                                 />
                                             </div>
                                         </div>
 
                                         <Button 
                                             onClick={generateSuggestions} 
-                                            className="w-full"
+                                            className="w-full text-white shadow-sm"
+                                            style={recipes.length === 0
+                                                ? { backgroundColor: '#E0C3B5', cursor: 'not-allowed' }
+                                                : { backgroundColor: '#C97D60' }
+                                            }
+                                            onMouseEnter={(e) => {
+                                                if (recipes.length > 0) e.currentTarget.style.backgroundColor = '#B46D52';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (recipes.length > 0) e.currentTarget.style.backgroundColor = '#C97D60';
+                                            }}
                                             disabled={recipes.length === 0}
                                         >
                                             <RefreshCw className="mr-2 h-4 w-4" />
@@ -354,41 +423,54 @@
 
                                         {suggestedRecipes.length > 0 && (
                                             <div className="mt-6 space-y-3">
-                                                <h3 className="font-semibold text-lg">今週のおすすめ献立</h3>
+                                                <h3 className="font-semibold text-lg" style={{ color: '#333333' }}>今週のおすすめ献立</h3>
                                                 {suggestedRecipes.map((recipe) => {
                                                     const typeInfo = getTypeInfo(recipe.type);
                                                     const Icon = typeInfo.icon;
                                                     return (
-                                                        <Card key={recipe.id} className="bg-white">
-                                                            <CardContent className="p-4">
-                                                                <div className="flex items-start justify-between">
-                                                                    <div className="flex-1">
-                                                                        <div className="flex items-center gap-2 mb-2">
-                                                                            <Badge className={`${typeInfo.color} text-white`}>
-                                                                                <Icon className="h-3 w-3 mr-1" />
-                                                                                {typeInfo.label}
-                                                                            </Badge>
-                                                                            <span className="font-semibold text-lg">{recipe.name}</span>
-                                                                        </div>
-                                                                        {recipe.ingredients.length > 0 && (
-                                                                            <div className="text-sm text-gray-600 mb-2">
-                                                                                <span className="font-medium">材料：</span>
-                                                                                {recipe.ingredients.join(', ')}
-                                                                            </div>
-                                                                        )}
-                                                                        <div className="flex items-center gap-2 text-sm">
-                                                                            <Calendar className="h-4 w-4 text-gray-400" />
-                                                                            <span className="text-gray-600">
-                                                                                最終調理: {formatDate(recipe.lastCooked)}
-                                                                            </span>
-                                                                        </div>
+                                                        <Card key={`${recipe.id}-${recipe.suggestionIndex}`} className="bg-white shadow-sm" style={{ borderColor: '#E2D9CF' }}>
+                                                            <CardContent className="p-4 pt-5">
+                                                                <div className="mb-3">
+                                                                    <div className="mb-3">
+                                                                        <Badge className="text-white border-0" style={typeInfo.style}>
+                                                                            <Icon className="h-3 w-3 mr-1" />
+                                                                            {typeInfo.label}
+                                                                        </Badge>
                                                                     </div>
+                                                                    <h3 className="font-semibold text-lg mb-2" style={{ color: '#333333' }}>{recipe.name}</h3>
+                                                                    {recipe.ingredients.length > 0 && (
+                                                                        <div className="text-sm mb-2" style={{ color: '#666666' }}>
+                                                                            <span className="font-medium" style={{ color: '#333333' }}>材料：</span>
+                                                                            {recipe.ingredients.join(', ')}
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="flex items-center gap-2 text-sm">
+                                                                        <Calendar className="h-4 w-4" style={{ color: '#C97D60' }} />
+                                                                        <span style={{ color: '#666666' }}>最終調理: {formatDate(recipe.lastCooked)}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-2">
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        onClick={() => showNextRecipe(recipe.suggestionType, recipe.suggestionIndex)}
+                                                                        style={{ borderColor: '#E2D9CF', backgroundColor: 'white', color: '#333333' }}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F9F6F1'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                                                    >
+                                                                        <RefreshCw className="h-3 w-3 mr-1" />
+                                                                        別の料理
+                                                                    </Button>
                                                                     <Button
                                                                         size="sm"
                                                                         onClick={() => markAsCooked(recipe.id)}
-                                                                        className="ml-2"
+                                                                        className="text-white"
+                                                                        style={{ backgroundColor: '#C97D60' }}
+                                                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#B46D52'}
+                                                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C97D60'}
                                                                     >
-                                                                        <Check className="h-4 w-4" />
+                                                                        <Check className="h-4 w-4 mr-1" />
+                                                                        作った！
                                                                     </Button>
                                                                 </div>
                                                             </CardContent>
@@ -399,41 +481,52 @@
                                         )}
 
                                         {recipes.length === 0 && (
-                                            <div className="text-center py-8 text-gray-500">
-                                                まだ料理が登録されていません。<br />
-                                                「新規登録」タブから料理を登録してください。
+                                            <div className="text-center py-10" style={{ color: '#666666' }}>
+                                                まだ料理が登録されていません<br />
+                                                <span className="text-sm">「新規登録」タブから料理を登録してください</span>
                                             </div>
                                         )}
                                     </CardContent>
                                 </Card>
                             </TabsContent>
 
-                            {/* 料理一覧タブ */}
                             <TabsContent value="list">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>登録済み料理一覧</CardTitle>
-                                        <CardDescription>全{recipes.length}品の料理が登録されています</CardDescription>
+                                <Card className="bg-white shadow-sm" style={{ borderColor: '#E2D9CF' }}>
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-xl" style={{ color: '#333333' }}>登録済み料理一覧</CardTitle>
+                                        <CardDescription style={{ color: '#666666' }}>全{recipes.length}品の料理が登録されています</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="space-y-2">
+                                        <div className="mb-4">
+                                            <Label htmlFor="searchIngredient" className="text-sm font-medium" style={{ color: '#333333' }}>材料で検索</Label>
+                                            <Input
+                                                id="searchIngredient"
+                                                placeholder="例: じゃがいも"
+                                                value={searchIngredient}
+                                                onChange={(e) => setSearchIngredient(e.target.value)}
+                                                className="mt-1.5 bg-white"
+                                                style={{ borderColor: '#E2D9CF', color: '#333333' }}
+                                            />
+                                            {searchIngredient && (
+                                                <p className="text-xs mt-1.5" style={{ color: '#666666' }}>
+                                                    「{searchIngredient}」を含む料理: {getFilteredRecipes().length}品
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="space-y-4">
                                             {['炊飯器', 'コンロ'].map((type) => {
-                                                const filteredRecipes = recipes.filter(r => r.type === type);
+                                                const filteredRecipes = getFilteredRecipes().filter(r => r.type === type);
                                                 const typeInfo = getTypeInfo(type);
                                                 const Icon = typeInfo.icon;
-
                                                 if (filteredRecipes.length === 0) return null;
-
                                                 return (
-                                                    <div key={type} className="mb-6">
+                                                    <div key={type} className="mb-4">
                                                         <div className="flex items-center gap-2 mb-3">
-                                                            <Badge className={`${typeInfo.color} text-white`}>
+                                                            <Badge className="text-white border-0" style={typeInfo.style}>
                                                                 <Icon className="h-3 w-3 mr-1" />
                                                                 {typeInfo.label}
                                                             </Badge>
-                                                            <span className="text-sm text-gray-600">
-                                                                {filteredRecipes.length}品
-                                                            </span>
+                                                            <span className="text-sm" style={{ color: '#666666' }}>{filteredRecipes.length}品</span>
                                                         </div>
                                                         <div className="space-y-2">
                                                             {filteredRecipes
@@ -444,37 +537,43 @@
                                                                     return new Date(a.lastCooked) - new Date(b.lastCooked);
                                                                 })
                                                                 .map((recipe) => (
-                                                                    <Card key={recipe.id} className="bg-white">
-                                                                        <CardContent className="p-3">
-                                                                            <div className="flex items-start justify-between">
-                                                                                <div className="flex-1">
-                                                                                    <h4 className="font-semibold mb-1">{recipe.name}</h4>
+                                                                    <Card key={recipe.id} className="bg-white shadow-sm" style={{ borderColor: '#E2D9CF' }}>
+                                                                        <CardContent className="px-3 pt-4 pb-2">
+                                                                            <div className="flex items-start justify-between mb-3">
+                                                                                <div className="flex-1 min-w-0">
+                                                                                    <h4 className="font-semibold mb-1" style={{ color: '#333333' }}>{recipe.name}</h4>
                                                                                     {recipe.ingredients.length > 0 && (
-                                                                                        <p className="text-xs text-gray-600 mb-1">
-                                                                                            {recipe.ingredients.join(', ')}
-                                                                                        </p>
+                                                                                        <p className="text-xs truncate" style={{ color: '#666666' }}>{recipe.ingredients.join(', ')}</p>
                                                                                     )}
-                                                                                    <div className="flex items-center gap-3 text-xs text-gray-500">
-                                                                                        <span>最終: {formatDate(recipe.lastCooked)}</span>
-                                                                                        <span>調理回数: {recipe.cookedCount}回</span>
-                                                                                    </div>
                                                                                 </div>
-                                                                                <div className="flex gap-1 ml-2">
+                                                                                <div className="flex gap-2 ml-2 flex-shrink-0">
+                                                                                    <Button
+                                                                                        size="sm"
+                                                                                        onClick={() => markAsCooked(recipe.id)}
+                                                                                        className="text-white h-9 px-3"
+                                                                                        style={{ backgroundColor: '#C97D60' }}
+                                                                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#B46D52'}
+                                                                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C97D60'}
+                                                                                    >
+                                                                                        <Check className="h-4 w-4 mr-1" />
+                                                                                        作った！
+                                                                                    </Button>
                                                                                     <Button
                                                                                         size="sm"
                                                                                         variant="outline"
-                                                                                        onClick={() => markAsCooked(recipe.id)}
-                                                                                    >
-                                                                                        <Check className="h-3 w-3" />
-                                                                                    </Button>
-                                                                                    <Button
-                                                                                        size="sm"
-                                                                                        variant="destructive"
                                                                                         onClick={() => deleteRecipe(recipe.id)}
+                                                                                        className="h-9 w-9 p-0"
+                                                                                        style={{ borderColor: '#E2D9CF', backgroundColor: 'white' }}
+                                                                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FEF5F0'}
+                                                                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
                                                                                     >
-                                                                                        <Trash2 className="h-3 w-3" />
+                                                                                        <Trash2 className="h-4 w-4 text-red-500" />
                                                                                     </Button>
                                                                                 </div>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-3 text-xs pt-2 border-t" style={{ color: '#666666', borderColor: '#E2D9CF' }}>
+                                                                                <span>最終: {formatDate(recipe.lastCooked)}</span>
+                                                                                <span>回数: {recipe.cookedCount}回</span>
                                                                             </div>
                                                                         </CardContent>
                                                                     </Card>
@@ -483,53 +582,71 @@
                                                     </div>
                                                 );
                                             })}
-
                                             {recipes.length === 0 && (
-                                                <div className="text-center py-8 text-gray-500">
-                                                    まだ料理が登録されていません
-                                                </div>
+                                                <div className="text-center py-10" style={{ color: '#666666' }}>まだ料理が登録されていません</div>
+                                            )}
+                                            {recipes.length > 0 && getFilteredRecipes().length === 0 && (
+                                                <div className="text-center py-10" style={{ color: '#666666' }}>「{searchIngredient}」を含む料理が見つかりませんでした</div>
                                             )}
                                         </div>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
 
-                            {/* 新規登録タブ */}
                             <TabsContent value="add">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>新しい料理を登録</CardTitle>
-                                        <CardDescription>料理名、調理器具、材料を入力してください</CardDescription>
+                                <Card className="bg-white shadow-sm" style={{ borderColor: '#E2D9CF' }}>
+                                    <CardHeader className="pb-4">
+                                        <CardTitle className="text-xl" style={{ color: '#333333' }}>新しい料理を登録</CardTitle>
+                                        <CardDescription style={{ color: '#666666' }}>料理名、調理器具、材料を入力してください</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div>
-                                            <Label htmlFor="recipeName">料理名</Label>
+                                            <Label htmlFor="recipeName" className="text-sm font-medium" style={{ color: '#333333' }}>料理名</Label>
                                             <Input
                                                 id="recipeName"
                                                 placeholder="例: 肉じゃが"
                                                 value={newRecipe.name}
                                                 onChange={(e) => setNewRecipe({...newRecipe, name: e.target.value})}
-                                                className="mt-1"
+                                                className="mt-1.5 bg-white"
+                                                style={{ borderColor: '#E2D9CF', color: '#333333' }}
                                             />
                                         </div>
 
                                         <div>
-                                            <Label>調理器具</Label>
-                                            <div className="grid grid-cols-2 gap-2 mt-1">
+                                            <Label className="text-sm font-medium" style={{ color: '#333333' }}>調理器具</Label>
+                                            <div className="grid grid-cols-2 gap-2 mt-1.5">
                                                 <Button
                                                     type="button"
-                                                    variant={newRecipe.type === '炊飯器' ? 'default' : 'outline'}
                                                     onClick={() => setNewRecipe({...newRecipe, type: '炊飯器'})}
                                                     className="w-full"
+                                                    style={newRecipe.type === '炊飯器' 
+                                                        ? { backgroundColor: '#7B9369', borderColor: '#7B9369', color: 'white' }
+                                                        : { borderColor: '#7B9369', color: '#7B9369', backgroundColor: 'white' }
+                                                    }
+                                                    onMouseEnter={(e) => {
+                                                        if (newRecipe.type !== '炊飯器') e.currentTarget.style.backgroundColor = '#F9F6F1';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (newRecipe.type !== '炊飯器') e.currentTarget.style.backgroundColor = 'white';
+                                                    }}
                                                 >
                                                     <ChefHat className="mr-2 h-4 w-4" />
                                                     炊飯器
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    variant={newRecipe.type === 'コンロ' ? 'default' : 'outline'}
                                                     onClick={() => setNewRecipe({...newRecipe, type: 'コンロ'})}
                                                     className="w-full"
+                                                    style={newRecipe.type === 'コンロ' 
+                                                        ? { backgroundColor: '#B28A63', borderColor: '#B28A63', color: 'white' }
+                                                        : { borderColor: '#B28A63', color: '#B28A63', backgroundColor: 'white' }
+                                                    }
+                                                    onMouseEnter={(e) => {
+                                                        if (newRecipe.type !== 'コンロ') e.currentTarget.style.backgroundColor = '#F9F6F1';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (newRecipe.type !== 'コンロ') e.currentTarget.style.backgroundColor = 'white';
+                                                    }}
                                                 >
                                                     <Flame className="mr-2 h-4 w-4" />
                                                     コンロ
@@ -538,22 +655,60 @@
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="ingredients">材料（カンマ区切り）</Label>
-                                            <Input
-                                                id="ingredients"
-                                                placeholder="例: じゃがいも, 人参, 玉ねぎ, 牛肉"
-                                                value={newRecipe.ingredients}
-                                                onChange={(e) => setNewRecipe({...newRecipe, ingredients: e.target.value})}
-                                                className="mt-1"
-                                            />
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                材料をカンマ（,）で区切って入力してください
-                                            </p>
+                                            <Label className="text-sm font-medium" style={{ color: '#333333' }}>材料</Label>
+                                            <div className="space-y-2 mt-1.5">
+                                                {newRecipe.ingredients.map((ingredient, index) => (
+                                                    <div key={index} className="flex gap-2">
+                                                        <Input
+                                                            placeholder="例: じゃがいも"
+                                                            value={ingredient}
+                                                            onChange={(e) => updateIngredient(index, e.target.value)}
+                                                            className="flex-1 bg-white"
+                                                            style={{ borderColor: '#E2D9CF', color: '#333333' }}
+                                                        />
+                                                        {newRecipe.ingredients.length > 1 && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => removeIngredientField(index)}
+                                                                style={{ borderColor: '#E2D9CF', backgroundColor: 'white' }}
+                                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FEF5F0'}
+                                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                                            >
+                                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={addIngredientField}
+                                                    className="w-full"
+                                                    style={{ borderColor: '#E2D9CF', backgroundColor: 'white', color: '#333333' }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F9F6F1'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                                                >
+                                                    <Plus className="mr-2 h-4 w-4" />
+                                                    材料を追加
+                                                </Button>
+                                            </div>
                                         </div>
 
                                         <Button 
                                             onClick={addRecipe} 
-                                            className="w-full"
+                                            className="w-full text-white shadow-sm"
+                                            style={!newRecipe.name.trim() 
+                                                ? { backgroundColor: '#E0C3B5', cursor: 'not-allowed' }
+                                                : { backgroundColor: '#C97D60' }
+                                            }
+                                            onMouseEnter={(e) => {
+                                                if (newRecipe.name.trim()) e.currentTarget.style.backgroundColor = '#B46D52';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (newRecipe.name.trim()) e.currentTarget.style.backgroundColor = '#C97D60';
+                                            }}
                                             disabled={!newRecipe.name.trim()}
                                         >
                                             <Plus className="mr-2 h-4 w-4" />
@@ -568,7 +723,6 @@
             );
         };
 
-        // アプリをレンダリング
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<MealPrepApp />);
     </script>
