@@ -191,8 +191,8 @@
                 ingredients: ''
             });
             const [suggestion, setSuggestion] = useState({
-                riceCooker: 1,
-                stove: 1
+                riceCooker: '1',
+                stove: '1'
             });
             const [suggestedRecipes, setSuggestedRecipes] = useState([]);
 
@@ -258,9 +258,13 @@
                 const sortedRiceCooker = [...riceCookerRecipes].sort(sortByLastCooked);
                 const sortedStove = [...stoveRecipes].sort(sortByLastCooked);
 
+                // 文字列を数値に変換（空文字列は0として扱う）
+                const riceCookerCount = parseInt(suggestion.riceCooker) || 0;
+                const stoveCount = parseInt(suggestion.stove) || 0;
+
                 const suggested = [
-                    ...sortedRiceCooker.slice(0, suggestion.riceCooker),
-                    ...sortedStove.slice(0, suggestion.stove)
+                    ...sortedRiceCooker.slice(0, riceCookerCount),
+                    ...sortedStove.slice(0, stoveCount)
                 ];
 
                 setSuggestedRecipes(suggested);
@@ -321,7 +325,7 @@
                                                     min="0"
                                                     max="5"
                                                     value={suggestion.riceCooker}
-                                                    onChange={(e) => setSuggestion({...suggestion, riceCooker: parseInt(e.target.value) || 0})}
+                                                    onChange={(e) => setSuggestion({...suggestion, riceCooker: e.target.value})}
                                                     className="mt-1"
                                                 />
                                             </div>
@@ -333,7 +337,7 @@
                                                     min="0"
                                                     max="5"
                                                     value={suggestion.stove}
-                                                    onChange={(e) => setSuggestion({...suggestion, stove: parseInt(e.target.value) || 0})}
+                                                    onChange={(e) => setSuggestion({...suggestion, stove: e.target.value})}
                                                     className="mt-1"
                                                 />
                                             </div>
